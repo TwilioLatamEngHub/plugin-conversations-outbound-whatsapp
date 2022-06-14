@@ -82,9 +82,7 @@ export const OutboundWAPanel = props => {
 
     if (phoneUtil.isPossibleNumber(parsedToNumber) && messageBody.length)
       if (phoneUtil.isValidNumber(parsedToNumber)) disableSend = false
-  } catch (error) {
-    console.error(error)
-  }
+  } catch (error) {}
 
   // event handlers
   const handleClose = () => {

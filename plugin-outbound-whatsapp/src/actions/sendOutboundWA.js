@@ -33,9 +33,9 @@ const sendOutboundWA = async (
 
   const options = {
     method: 'POST',
-    body: new URLSearchParams(body),
+    body: JSON.stringify(body),
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      'Content-Type': 'application/json'
     }
   }
 
