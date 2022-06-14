@@ -9,8 +9,6 @@ const openAChatTask = async (
   WorkerFriendlyName,
   routingProperties
 ) => {
-  console.log(To, From, Body, WorkerFriendlyName, routingProperties)
-
   const interaction = await client.flexApi.v1.interaction.create({
     channel: {
       type: 'whatsapp',
@@ -40,15 +38,12 @@ const openAChatTask = async (
       }
     }
   })
-  console.log(interaction)
 
   const taskAttributes = JSON.parse(interaction.routing.properties.attributes)
-  console.log(taskAttributes)
 
-  const message = await client.conversations
+  await client.conversations
     .conversations(taskAttributes.conversationSid)
     .messages.create({ author: WorkerFriendlyName, body: Body })
-  console.log(message)
 
   return {
     success: true,
@@ -66,8 +61,7 @@ const sendOutboundMessage = async (
   WorkerFriendlyName,
   InboundStudioFlow
 ) => {
-  const friendlyName = `Outbound $(From) -> $(To)`
-  console.log(friendlyName)
+  const friendlyName = `Outbound ${From} -> ${To}`
 
   // Set flag in channel attribtues so Studio knows if it should set task attribute to target known agent
   let converstationAttributes = { KnownAgentRoutingFlag }
@@ -80,17 +74,13 @@ const sendOutboundMessage = async (
     friendlyName,
     attributes
   })
-  console.log(channel)
 
   try {
     // Add customer to channel
-    const participant = await client.conversations
-      .conversations(channel.sid)
-      .participants.create({
-        'messagingBinding.address': `whatsapp:${To}`,
-        'messagingBinding.proxyAddress': `whatsapp:${From}`
-      })
-    console.log(participant)
+    await client.conversations.conversations(channel.sid).participants.create({
+      'messagingBinding.address': `whatsapp:${To}`,
+      'messagingBinding.proxyAddress': `whatsapp:${From}`
+    })
   } catch (error) {
     console.log(error)
 
@@ -107,20 +97,15 @@ const sendOutboundMessage = async (
   }
 
   // Point the channel to Studio
-  const webhook = client.conversations
-    .conversations(channel.sid)
-    .webhooks.create({
-      target: 'studio',
-      configuration: { flowSid: InboundStudioFlow }
-    })
-  console.log(webhook)
+  await client.conversations.conversations(channel.sid).webhooks.create({
+    target: 'studio',
+    configuration: { flowSid: InboundStudioFlow }
+  })
 
   // Add agents initial message
-  const message = await client.conversations
+  await client.conversations
     .conversations(channel.sid)
     .messages.create({ author: WorkerFriendlyName, body: Body })
-
-  console.log(message)
 
   return { success: true, channelSid: channel.sid }
 }
