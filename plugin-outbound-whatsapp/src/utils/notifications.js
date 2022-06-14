@@ -1,7 +1,7 @@
 import { Notifications, NotificationType } from '@twilio/flex-ui'
 
 const registerOutboundWAFailed = manager => {
-  manager.strings.outboundWAFailed = 'Outbound WA failed: "{{message}}"'
+  manager.strings.outboundWAFailed = 'Outbound WhatsApp failed: "{{message}}"'
   Notifications.registerNotification({
     id: 'outboundWAFailed',
     content: 'outboundWAFailed', // template
@@ -11,7 +11,7 @@ const registerOutboundWAFailed = manager => {
 }
 
 const registerOutboundWASent = manager => {
-  manager.strings.outboundWASent = 'WA sent to "{{message}}"'
+  manager.strings.outboundWASent = 'WhatsApp sent to "{{message}}"'
   Notifications.registerNotification({
     id: 'outboundWASent',
     content: 'outboundWASent', // template
