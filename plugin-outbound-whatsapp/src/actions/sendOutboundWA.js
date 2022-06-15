@@ -31,19 +31,7 @@ const sendOutboundWA = async (
 
   console.log('DEBUG body', body)
 
-  const options = {
-    method: 'POST',
-    body: JSON.stringify(body),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  }
-
   try {
-    // const resp = await fetch(
-    //   `${process.env.FLEX_APP_TWILIO_SERVERLESS_DOMAIN}`,
-    //   options
-    // )
     const resp = await fetch(
       `${process.env.FLEX_APP_TWILIO_SERVERLESS_DOMAIN}`,
       {
