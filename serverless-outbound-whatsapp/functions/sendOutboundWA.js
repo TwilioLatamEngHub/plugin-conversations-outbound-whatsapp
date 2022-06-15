@@ -26,7 +26,7 @@ const openAChatTask = async (
     routing: {
       properties: {
         ...routingProperties,
-        task_channel_unique_name: 'whatsapp',
+        task_channel_unique_name: 'Chat',
         attributes: {
           from: To,
           direction: 'outbound',
@@ -120,12 +120,10 @@ exports.handler = TokenValidator(async function (context, event, callback) {
     QueueSid,
     WorkerSid,
     WorkerFriendlyName,
-    InboundStudioFlow
+    InboundStudioFlow,
+    OpenChatFlag,
+    KnownAgentRoutingFlag
   } = event
-
-  let { OpenChatFlag, KnownAgentRoutingFlag } = event
-  OpenChatFlag = OpenChatFlag === 'true' ? true : false
-  KnownAgentRoutingFlag = KnownAgentRoutingFlag === 'true' ? true : false
 
   const client = context.getTwilioClient()
 
