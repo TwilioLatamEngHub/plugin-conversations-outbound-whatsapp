@@ -56,7 +56,7 @@ const SendMessageMenu = props => {
 }
 
 export const OutboundWAPanel = props => {
-  const [toNumber, setToNumber] = useState('+1')
+  const [toNumber, setToNumber] = useState('+55')
   const [messageBody, setMessageBody] = useState('')
 
   // Redux state
@@ -117,7 +117,7 @@ export const OutboundWAPanel = props => {
 
   // if we navigate away clear state
   if (!isOutboundWAPanelOpen) {
-    if (toNumber !== '+1') setToNumber('+1')
+    if (toNumber !== '+55') setToNumber('+55')
     if (messageBody.length) setMessageBody('')
     return null
   }
@@ -148,7 +148,7 @@ export const OutboundWAPanel = props => {
                   onPhoneNumberChange={setToNumber}
                   hideActions
                   disabled={false}
-                  defaultCountryAlpha2Code={'US'}
+                  defaultCountryAlpha2Code={'BR'}
                 />
               </DialerContainer>
               <MessageContainer theme={props.theme}>

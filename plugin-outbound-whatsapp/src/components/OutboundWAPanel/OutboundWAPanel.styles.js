@@ -33,10 +33,15 @@ export const DialerContainer = styled('div')`
   opacity: ${({ disabled }) => disabled && 0.4};
   ${({ disabled, theme }) =>
     disabled && theme.OutboundDialerPanel.Container.disabled};
+
+  & > div > div > button {
+    color: #0263e0;
+  }
 `
 
 export const MessageContainer = styled('div')`
   padding: ${p => p.theme.tokens.spacings.space50};
+  color: #121c2d;
 `
 
 export const SendMessageContainer = styled('div')`
