@@ -40,10 +40,21 @@ const sendOutboundWA = async (
   }
 
   try {
+    // const resp = await fetch(
+    //   `${process.env.FLEX_APP_TWILIO_SERVERLESS_DOMAIN}`,
+    //   options
+    // )
     const resp = await fetch(
       `${process.env.FLEX_APP_TWILIO_SERVERLESS_DOMAIN}`,
-      options
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: JSON.stringify(body)
+      }
     )
+
     const data = await resp.json()
 
     if (!OpenChatFlag && data.success) {
@@ -81,7 +92,7 @@ Actions.registerAction('SendOutboundWA', payload => {
       process.env.FLEX_APP_WORKSPACE_SID,
       process.env.FLEX_APP_WORKFLOW_SID,
       process.env.FLEX_APP_QUEUE_SID,
-      ''
+      process.env.FLEX_APP_INBOUND_STUDIO_FLOW
     )
   } else {
     // send message and inbound triggers studio flow. optional known agent routing
