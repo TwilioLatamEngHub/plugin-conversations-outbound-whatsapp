@@ -46,6 +46,10 @@ export const MessageContainer = styled('div')`
 
 export const SendMessageContainer = styled('div')`
   padding: ${p => p.theme.tokens.spacings.space50} 0;
+
+  & > button {
+    width: 100%;
+  }
 `
 
 export const OfflineContainer = styled('div')`

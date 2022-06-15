@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Actions, Dialer, Manager, useFlexSelector } from '@twilio/flex-ui'
 import {
-  Label,
   TextArea,
   MenuButton,
   MenuItem,
@@ -152,7 +151,6 @@ export const OutboundWAPanel = props => {
                 />
               </DialerContainer>
               <MessageContainer theme={props.theme}>
-                <Label htmlFor='wa-body'>Message to send</Label>
                 <TextArea
                   theme={props.themes}
                   onChange={event => {
