@@ -39,31 +39,31 @@ export const OutboundWAPanel = props => {
     Actions.invokeAction('ToggleOutboundWAPanel')
   }
 
-  const onSendClickHandler = menuItemClicked => {
-    // default is open a chat task which would have had the message added
-    let payload = {
-      destination: toNumber,
-      body: messageBody,
-      openChat: true,
-      routeToMe: true
-    }
+  // const onSendClickHandler = menuItemClicked => {
+  //   // default is open a chat task which would have had the message added
+  //   let payload = {
+  //     destination: toNumber,
+  //     body: messageBody,
+  //     openChat: true,
+  //     routeToMe: true
+  //   }
 
-    // defer opening a task until customer replies
-    switch (menuItemClicked) {
-      case 'SEND_MESSAGE_REPLY_ME':
-        payload.openChat = false
-        payload.routeToMe = true
-        break
+  //   // defer opening a task until customer replies
+  //   switch (menuItemClicked) {
+  //     case 'SEND_MESSAGE_REPLY_ME':
+  //       payload.openChat = false
+  //       payload.routeToMe = true
+  //       break
 
-      case 'SEND_MESSAGE':
-        payload.openChat = false
-        payload.routeToMe = false
-        break
-    }
+  //     case 'SEND_MESSAGE':
+  //       payload.openChat = false
+  //       payload.routeToMe = false
+  //       break
+  //   }
 
-    Actions.invokeAction('SendOutboundWA', payload)
-    Actions.invokeAction('ToggleOutboundWAPanel')
-  }
+  //   Actions.invokeAction('SendOutboundWA', payload)
+  //   Actions.invokeAction('ToggleOutboundWAPanel')
+  // }
 
   // if we navigate away clear state
   if (!isOutboundWAPanelOpen) {
@@ -85,10 +85,10 @@ export const OutboundWAPanel = props => {
               value={{
                 theme: props.theme,
                 toNumber,
+                messageBody,
                 setToNumber,
                 messageBody,
-                setMessageBody,
-                onSendClickHandler
+                setMessageBody
               }}
             >
               <DialerComponent />
