@@ -13,9 +13,7 @@ import { MessageComponent } from '../MessageComponent/MessageComponent'
 import { PanelContext } from '../../contexts/contexts'
 import { templates } from '../../utils/templates'
 
-// IMPORTANT: This is just a simple example on how to add templates in your Select options.
-
-export const OutboundWAPanel = props => {
+export const OutboundWAPanel = ({ theme }) => {
   const [toNumber, setToNumber] = useState('+55')
   const [messageBody, setMessageBody] = useState(templates[0])
 
@@ -39,32 +37,6 @@ export const OutboundWAPanel = props => {
     Actions.invokeAction('ToggleOutboundWAPanel')
   }
 
-  // const onSendClickHandler = menuItemClicked => {
-  //   // default is open a chat task which would have had the message added
-  //   let payload = {
-  //     destination: toNumber,
-  //     body: messageBody,
-  //     openChat: true,
-  //     routeToMe: true
-  //   }
-
-  //   // defer opening a task until customer replies
-  //   switch (menuItemClicked) {
-  //     case 'SEND_MESSAGE_REPLY_ME':
-  //       payload.openChat = false
-  //       payload.routeToMe = true
-  //       break
-
-  //     case 'SEND_MESSAGE':
-  //       payload.openChat = false
-  //       payload.routeToMe = false
-  //       break
-  //   }
-
-  //   Actions.invokeAction('SendOutboundWA', payload)
-  //   Actions.invokeAction('ToggleOutboundWAPanel')
-  // }
-
   // if we navigate away clear state
   if (!isOutboundWAPanelOpen) {
     if (toNumber !== '+55') setToNumber('+55')
@@ -76,14 +48,14 @@ export const OutboundWAPanel = props => {
       <Container>
         <StyledSidePanel
           displayName='WhatsApp'
-          themeOverride={props.theme && props.theme.OutboundDialerPanel}
+          themeOverride={theme && theme.OutboundDialerPanel}
           handleCloseClick={handleClose}
           title='WhatsApp'
         >
           {isWorkerAvailable && (
             <PanelContext.Provider
               value={{
-                theme: props.theme,
+                theme: theme,
                 toNumber,
                 messageBody,
                 setToNumber,
@@ -96,7 +68,7 @@ export const OutboundWAPanel = props => {
             </PanelContext.Provider>
           )}
           {!isWorkerAvailable && (
-            <OfflineContainer theme={props.theme}>
+            <OfflineContainer theme={theme}>
               <ErrorIcon decorative title='Error' />
               {`To send a message, please change your status from ${worker.activity.name}`}
             </OfflineContainer>
