@@ -1,62 +1,23 @@
 import React, { useState } from 'react'
-import { Actions, Dialer, Manager, useFlexSelector } from '@twilio/flex-ui'
-import {
-  TextArea,
-  MenuButton,
-  MenuItem,
-  Menu,
-  MenuSeparator,
-  useMenuState
-} from '@twilio-paste/core'
+import { Actions, Manager, useFlexSelector } from '@twilio/flex-ui'
 import { Theme } from '@twilio-paste/theme'
-import { ChevronDownIcon } from '@twilio-paste/icons/esm/ChevronDownIcon'
 import { ErrorIcon } from '@twilio-paste/icons/esm/ErrorIcon'
-import { PhoneNumberUtil } from 'google-libphonenumber'
 
 import {
   Container,
   StyledSidePanel,
-  Caption,
-  DialerContainer,
-  MessageContainer,
-  SendMessageContainer,
   OfflineContainer
 } from './OutboundWAPanel.styles'
+import { DialerComponent } from '../DialerComponent/DialerComponent'
+import { MessageComponent } from '../MessageComponent/MessageComponent'
+import { PanelContext } from '../../contexts/contexts'
+import { templates } from '../../utils/templates'
 
-const SendMessageMenu = props => {
-  const menu = useMenuState()
-  return (
-    <>
-      <MenuButton {...menu} variant='primary' disabled={props.disableSend}>
-        Send message.... <ChevronDownIcon decorative />
-      </MenuButton>
-      <Menu {...menu} aria-label='Actions'>
-        <MenuItem {...menu} onClick={() => props.onClickHandler('OPEN_CHAT')}>
-          ....and open chat with customer
-        </MenuItem>
-        <MenuSeparator />
-        <MenuItem
-          {...menu}
-          onClick={() => props.onClickHandler('SEND_MESSAGE_REPLY_ME')}
-        >
-          ....and open chat with customer when they reply (route reply to me)
-        </MenuItem>
-        <MenuSeparator />
-        <MenuItem
-          {...menu}
-          onClick={() => props.onClickHandler('SEND_MESSAGE')}
-        >
-          ....and open chat with customer when they reply (route reply to any
-          agent)
-        </MenuItem>
-      </Menu>
-    </>
-  )
-}
+// IMPORTANT: This is just a simple example on how to add templates in your Select options.
 
 export const OutboundWAPanel = props => {
   const [toNumber, setToNumber] = useState('+55')
-  const [messageBody, setMessageBody] = useState('')
+  const [messageBody, setMessageBody] = useState(templates[0])
 
   // Redux state
   const isOutboundWAPanelOpen = useFlexSelector(
@@ -72,16 +33,6 @@ export const OutboundWAPanel = props => {
 
   const isWorkerAvailable =
     worker.activity?.sid !== taskrouter_offline_activity_sid
-
-  // valid phone number and message so OK to enable send button?
-  let disableSend = true
-  const phoneUtil = PhoneNumberUtil.getInstance()
-  try {
-    const parsedToNumber = phoneUtil.parse(toNumber)
-
-    if (phoneUtil.isPossibleNumber(parsedToNumber) && messageBody.length)
-      if (phoneUtil.isValidNumber(parsedToNumber)) disableSend = false
-  } catch (error) {}
 
   // event handlers
   const handleClose = () => {
@@ -117,7 +68,6 @@ export const OutboundWAPanel = props => {
   // if we navigate away clear state
   if (!isOutboundWAPanelOpen) {
     if (toNumber !== '+55') setToNumber('+55')
-    if (messageBody.length) setMessageBody('')
     return null
   }
 
@@ -131,47 +81,23 @@ export const OutboundWAPanel = props => {
           title='WhatsApp'
         >
           {isWorkerAvailable && (
-            <>
-              <DialerContainer theme={props.theme}>
-                <Caption
-                  key='wa-outbound-input'
-                  htmlFor='dwa-outbound-input'
-                  theme={props.theme}
-                >
-                  Enter a number
-                </Caption>
-                <Dialer
-                  key='dialer'
-                  onDial={setToNumber}
-                  defaultPhoneNumber={toNumber}
-                  onPhoneNumberChange={setToNumber}
-                  hideActions
-                  disabled={false}
-                  defaultCountryAlpha2Code={'BR'}
-                />
-              </DialerContainer>
-              <MessageContainer theme={props.theme}>
-                <TextArea
-                  theme={props.themes}
-                  onChange={event => {
-                    setMessageBody(event.target.value)
-                  }}
-                  id='wa-body'
-                  name='wa-body'
-                  placeholder='Type message'
-                />
-                <SendMessageContainer theme={props.theme}>
-                  <SendMessageMenu
-                    disableSend={disableSend}
-                    onClickHandler={onSendClickHandler}
-                  />
-                </SendMessageContainer>
-              </MessageContainer>
-            </>
+            <PanelContext.Provider
+              value={{
+                theme: props.theme,
+                toNumber,
+                setToNumber,
+                messageBody,
+                setMessageBody,
+                onSendClickHandler
+              }}
+            >
+              <DialerComponent />
+              <MessageComponent />
+            </PanelContext.Provider>
           )}
           {!isWorkerAvailable && (
             <OfflineContainer theme={props.theme}>
-              <ErrorIcon />
+              <ErrorIcon decorative title='Error' />
               {`To send a message, please change your status from ${worker.activity.name}`}
             </OfflineContainer>
           )}
