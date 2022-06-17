@@ -34,7 +34,7 @@ For example purposes, this plugin comes with hard coded templates which are adde
 
 ### Twilio Serverless Functions
 
-This plugin includes a service used to park/unpark/close the interactions using Twilio Functions. Make sure you have the [Twilio Serverless Toolkit](https://www.twilio.com/docs/labs/serverless-toolkit/getting-started) installed before proceding.
+This plugin includes a service used to send the messages using Twilio Functions. Make sure you have the [Twilio Serverless Toolkit](https://www.twilio.com/docs/labs/serverless-toolkit/getting-started) installed before proceding.
 
 After installing it correctly, follow the procedure below:
 
@@ -82,6 +82,8 @@ Finally, to deploy the plugin, run:
 ```bash
 twilio flex:plugins:deploy --changelog "WRITE YOUR CHANGELOG HERE"
 ```
+
+**Important: After deployed, do not forget to enable and release your plugin inside Flex at https://flex.twilio.com/admin/plugins**.
 
 You can also run the plugin locally for testing purposes:
 
