@@ -1,31 +1,9 @@
 import { Actions, Manager, Notifications } from '@twilio/flex-ui'
 const manager = Manager.getInstance()
 
-const sendOutboundWA = async (
-  OpenChatFlag,
-  KnownAgentRoutingFlag,
-  To,
-  From,
-  Body,
-  WorkerSid,
-  WorkerFriendlyName,
-  WorkspaceSid,
-  WorkflowSid,
-  QueueSid,
-  InboundStudioFlow
-) => {
+const sendOutboundWA = async sendOutboundParams => {
   const body = {
-    OpenChatFlag,
-    KnownAgentRoutingFlag,
-    To,
-    From,
-    Body,
-    WorkspaceSid,
-    WorkflowSid,
-    QueueSid,
-    WorkerSid,
-    WorkerFriendlyName,
-    InboundStudioFlow,
+    ...sendOutboundParams,
     Token: manager.store.getState().flex.session.ssoTokenPayload.token
   }
 
@@ -45,9 +23,9 @@ const sendOutboundWA = async (
 
     const data = await resp.json()
 
-    if (!OpenChatFlag && data.success) {
+    if (!body.OpenChatFlag && data.success) {
       Notifications.showNotification('outboundWASent', {
-        message: To
+        message: body.To
       })
     }
 
@@ -69,33 +47,35 @@ const sendOutboundWA = async (
 Actions.registerAction('SendOutboundWA', payload => {
   if (payload.openChat) {
     // create a task immediately
-    sendOutboundWA(
-      true,
-      false,
-      payload.destination,
-      process.env.FLEX_APP_TWILIO_FROM_NUMBER,
-      payload.body,
-      manager.workerClient.sid,
-      manager.user.identity,
-      process.env.FLEX_APP_WORKSPACE_SID,
-      process.env.FLEX_APP_WORKFLOW_SID,
-      process.env.FLEX_APP_QUEUE_SID,
-      process.env.FLEX_APP_INBOUND_STUDIO_FLOW
-    )
+    const sendOutboundParams = {
+      OpenChatFlag: true,
+      KnownAgentRoutingFlag: false,
+      To: payload.destination,
+      From: process.env.FLEX_APP_TWILIO_FROM_NUMBER,
+      Body: payload.body,
+      WorkerSid: manager.workerClient.sid,
+      WorkerFriendlyName: manager.user.identity,
+      WorkspaceSid: process.env.FLEX_APP_WORKSPACE_SID,
+      WorkflowSid: process.env.FLEX_APP_WORKFLOW_SID,
+      QueueSid: process.env.FLEX_APP_QUEUE_SID,
+      InboundStudioFlow: process.env.FLEX_APP_INBOUND_STUDIO_FLOW
+    }
+    sendOutboundWA(sendOutboundParams)
   } else {
     // send message and inbound triggers studio flow. optional known agent routing
-    sendOutboundWA(
-      false,
-      !!payload.routeToMe,
-      payload.destination,
-      process.env.FLEX_APP_TWILIO_FROM_NUMBER,
-      payload.body,
-      manager.workerClient.sid,
-      manager.user.identity,
-      '',
-      '',
-      '',
-      process.env.FLEX_APP_INBOUND_STUDIO_FLOW
-    )
+    const sendOutboundParams = {
+      OpenChatFlag: false,
+      KnownAgentRoutingFlag: !!payload.routeToMe,
+      To: payload.destination,
+      From: process.env.FLEX_APP_TWILIO_FROM_NUMBER,
+      Body: payload.body,
+      WorkerSid: manager.workerClient.sid,
+      WorkerFriendlyName: manager.user.identity,
+      WorkspaceSid: '',
+      WorkflowSid: '',
+      QueueSid: '',
+      InboundStudioFlow: process.env.FLEX_APP_INBOUND_STUDIO_FLOW
+    }
+    sendOutboundWA(sendOutboundParams)
   }
 })
