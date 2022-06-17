@@ -1,4 +1,4 @@
-# Twilio Flex Conversations Outbound WhatsApp Plugin
+# Twilio Flex Conversations Send Outbound WhatsApp Plugin
 
 ## Disclaimer
 
