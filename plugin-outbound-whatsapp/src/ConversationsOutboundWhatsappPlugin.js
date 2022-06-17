@@ -1,8 +1,9 @@
 import React from 'react'
 import { FlexPlugin } from '@twilio/flex-plugin'
 
-import OutboundPanelButton from './components/OutboundPanelButton/OutboundPanelButton'
-import { OutboundWAPanel } from './components/OutboundWAPanel/OutboundWAPanel'
+import { OutboundPanelButton, OutboundWAPanel } from './components'
+// import OutboundPanelButton from './components/OutboundPanelButton/OutboundPanelButton'
+// import { OutboundWAPanel } from './components/OutboundWAPanel/OutboundWAPanel'
 import { registerNotifications } from './utils/notifications'
 import './actions'
 
