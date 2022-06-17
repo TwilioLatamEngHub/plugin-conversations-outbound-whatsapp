@@ -6,6 +6,7 @@ const registerOutboundWAFailed = manager => {
     id: 'outboundWAFailed',
     content: 'outboundWAFailed', // template
     closeButton: false,
+    timeout: 3000,
     type: NotificationType.error
   })
 }
@@ -15,7 +16,8 @@ const registerOutboundWASent = manager => {
   Notifications.registerNotification({
     id: 'outboundWASent',
     content: 'outboundWASent', // template
-    type: NotificationType.info
+    timeout: 3000,
+    type: NotificationType.success
   })
 }
 
