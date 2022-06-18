@@ -93,4 +93,4 @@ twilio flex:plugins:start
 
 ### Kudos
 
-Special thanks to [Darren Hamilton](https://github.com/dahamilton) for the assist on building this one.
+Special thanks to [Darren Hamilton](https://github.com/Dahamilton-twilio) for the assist on building this one.
