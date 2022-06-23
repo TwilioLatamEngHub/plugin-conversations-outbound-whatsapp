@@ -28,7 +28,7 @@ And a possibility to send outbound whatsapp messages in 3 different ways:
 
 ## Customization
 
-For example purposes, this plugin comes with hard coded templates which are added in the `src/utils/templates.js` file. Feel free to maintain the same logic by pasting your templates there or change the whole logic to your needs.
+For example purposes, this plugin comes with hard coded templates which are added in the `src/utils/templates.js` file. Those examples might NOT work for your account. You have to first approve your own templates in the console (as per the instructions given in the link shared previously), and then paste them exactly in the array as a string. About the code logic, feel free to maintain the same one or change the whole logic to your needs.
 
 ## Setup
 
