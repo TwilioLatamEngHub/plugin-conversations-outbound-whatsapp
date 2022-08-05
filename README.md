@@ -50,7 +50,7 @@ twilio serverless:deploy
 
 ### Plugin
 
-First install the dependencies in the plugin's folder:
+- First install the dependencies in the plugin's folder:
 
 ```bash
 # If you are inside the serverless folder, first run: cd ..
@@ -60,13 +60,13 @@ cd plugin-outbound-whatsapp
 npm install
 ```
 
-Create a `.env` file according to the `.env.example`:
+- Create a `.env` file according to the `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Fill the `.env` file accordingly:
+- Fill the `.env` file accordingly:
 
 | Config&nbsp;Value                 | Description                                                                                                                                                                                                                             |
 | :-------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -77,7 +77,9 @@ Fill the `.env` file accordingly:
 | FLEX_APP_INBOUND_STUDIO_FLOW      | The Studio Flow you use to Send to Flex. Starts with FWxxx.                                                                                                                                                                             |
 | FLEX_APP_TWILIO_FROM_NUMBER       | Your Twilio Phone Number used for Flex. Add in E.164 format. Ex.: +551143214321.                                                                                                                                                        |
 
-Finally, to deploy the plugin, run:
+- Inside the `/public` folder, create a `appConfig.js` file according to the `appConfig.example.js` file.
+
+- Finally, to deploy the plugin, run:
 
 ```bash
 twilio flex:plugins:deploy --changelog "WRITE YOUR CHANGELOG HERE"
