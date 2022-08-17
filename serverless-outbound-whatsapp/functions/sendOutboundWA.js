@@ -52,6 +52,62 @@ const openAChatTask = async (
   }
 }
 
+const fetchPreviousConversations = async (client, To) => {
+
+  // const resUserConversations = await axios.get(`https://conversations.twilio.com/v1/ParticipantConversations?Address=whatsapp:${To}`, {
+  //   headers: {
+  //     Authorization: `Basic ${Buffer.from(`${process.env.ACCOUNT_SID}:${process.env.AUTH_TOKEN}`, 'utf8').toString('base64')}`
+  //   }
+  // });
+  console.log("Fetching user conversation address ", `whatsapp:${To}`)
+  try {
+    const userConversations = await client.conversations.v1.participantConversations
+      .list({ address: `whatsapp:${To}` });
+
+    const openConversation = userConversations.find(conv => conv.conversationState === "active");
+
+    return openConversation
+
+  } catch (e) {
+    console.error(e)
+    return {}
+  }
+}
+
+
+const unparkInteraction = async (client, conversation, routingProperties) => {
+
+  const attributes = JSON.parse(conversation.conversationAttributes)
+
+  const { interactionSid, channelSid, taskAttributes, taskChannelUniqueName, webhookSid } = attributes
+
+  // Remove webhook so it doesn't keep triggering if parked more than once
+  await client.conversations
+    .conversations(conversation.conversationSid)
+    .webhooks(webhookSid)
+    .remove()
+
+  // Create a new task through the invites endpoint
+  console.log({
+    ...routingProperties,
+    task_channel_unique_name: taskChannelUniqueName,
+    attributes: taskAttributes
+  })
+  await client.flexApi.v1
+    .interaction(interactionSid)
+    .channels(channelSid)
+    .invites.create({
+      routing: {
+        properties: {
+          ...routingProperties,
+          task_channel_unique_name: taskChannelUniqueName,
+          attributes: taskAttributes
+        }
+      }
+    })
+
+  return
+}
 const sendOutboundMessage = async (
   client,
   To,
@@ -59,7 +115,7 @@ const sendOutboundMessage = async (
   Body,
   KnownAgentRoutingFlag,
   WorkerFriendlyName,
-  InboundStudioFlow
+  InboundStudioFlow, PreviousConversation
 ) => {
   const friendlyName = `Outbound ${From} -> ${To}`
 
@@ -69,31 +125,37 @@ const sendOutboundMessage = async (
     converstationAttributes.KnownAgentWorkerFriendlyName = WorkerFriendlyName
   const attributes = JSON.stringify(converstationAttributes)
 
+  let channel = {}
+
   // Create Channel
-  const channel = await client.conversations.conversations.create({
-    friendlyName,
-    attributes
-  })
-
-  try {
-    // Add customer to channel
-    await client.conversations.conversations(channel.sid).participants.create({
-      'messagingBinding.address': `whatsapp:${To}`,
-      'messagingBinding.proxyAddress': `whatsapp:${From}`
+  if (PreviousConversation == null) {
+    channel = await client.conversations.conversations.create({
+      friendlyName,
+      attributes
     })
-  } catch (error) {
-    console.log(error)
+    try {
+      // Add customer to channel
+      await client.conversations.conversations(channel.sid).participants.create({
+        'messagingBinding.address': `whatsapp:${To}`,
+        'messagingBinding.proxyAddress': `whatsapp:${From}`
+      })
+    } catch (error) {
+      console.log(error)
 
-    if (error.code === 50416)
-      return {
-        success: false,
-        errorMessage: `Error sending message. There is an open conversation already to ${To}`
-      }
-    else
-      return {
-        success: false,
-        errorMessage: `Error sending message. Error occured adding ${To} channel`
-      }
+      if (error.code === 50416) {
+        return {
+          success: false,
+          errorMessage: `Error sending message. There is an open conversation already to ${To}`
+        }
+      } else
+        return {
+          success: false,
+          errorMessage: `Error sending message. Error occured adding ${To} channel`
+        }
+    }
+  } else {
+    channel = PreviousConversation
+    channel.sid = PreviousConversation.conversationSid
   }
 
   // Point the channel to Studio
@@ -110,7 +172,8 @@ const sendOutboundMessage = async (
   return { success: true, channelSid: channel.sid }
 }
 
-exports.handler = TokenValidator(async function (context, event, callback) {
+// exports.handler = TokenValidator(async function (context, event, callback) {
+exports.handler = async function (context, event, callback) {
   const {
     To,
     From,
@@ -126,7 +189,6 @@ exports.handler = TokenValidator(async function (context, event, callback) {
   } = event
 
   const client = context.getTwilioClient()
-
   // Create a custom Twilio Response
   // Set the CORS headers to allow Flex to make an HTTP request to the Twilio Function
   const response = new Twilio.Response()
@@ -137,7 +199,10 @@ exports.handler = TokenValidator(async function (context, event, callback) {
   try {
     let sendResponse = null
 
-    if (OpenChatFlag) {
+    const PreviousConversation = await fetchPreviousConversations(client, To)
+
+
+    if (OpenChatFlag && PreviousConversation == null) {
       // create task and add the message to a channel
       sendResponse = await openAChatTask(
         client,
@@ -152,7 +217,20 @@ exports.handler = TokenValidator(async function (context, event, callback) {
           worker_sid: WorkerSid
         }
       )
+    } else if (PreviousConversation != null) {
+
+      await unparkInteraction(client, PreviousConversation, {
+        workspace_sid: WorkspaceSid,
+        workflow_sid: WorkflowSid,
+        queue_sid: QueueSid,
+        worker_sid: WorkerSid
+      });
+      await client.conversations
+        .conversations(PreviousConversation.conversationSid)
+        .messages.create({ author: WorkerFriendlyName, body: Body })
+
     } else {
+
       // create a channel but wait until customer replies before creating a task
       sendResponse = await sendOutboundMessage(
         client,
@@ -161,7 +239,8 @@ exports.handler = TokenValidator(async function (context, event, callback) {
         Body,
         KnownAgentRoutingFlag,
         WorkerFriendlyName,
-        InboundStudioFlow
+        InboundStudioFlow,
+        PreviousConversation
       )
     }
 
@@ -178,4 +257,4 @@ exports.handler = TokenValidator(async function (context, event, callback) {
     console.error(err)
     callback(null, response)
   }
-})
+}
