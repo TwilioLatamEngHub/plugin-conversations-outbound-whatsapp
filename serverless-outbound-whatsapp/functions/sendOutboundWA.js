@@ -106,7 +106,11 @@ const unparkInteraction = async (client, conversation, routingProperties) => {
       }
     })
 
-  return
+  return {
+    success: true,
+    interactionSid: interactionSid,
+    conversationSid: conversation.conversationSid
+  }
 }
 const sendOutboundMessage = async (
   client,
@@ -219,7 +223,7 @@ exports.handler = async function (context, event, callback) {
       )
     } else if (PreviousConversation != null) {
 
-      await unparkInteraction(client, PreviousConversation, {
+      sendResponse = await unparkInteraction(client, PreviousConversation, {
         workspace_sid: WorkspaceSid,
         workflow_sid: WorkflowSid,
         queue_sid: QueueSid,
