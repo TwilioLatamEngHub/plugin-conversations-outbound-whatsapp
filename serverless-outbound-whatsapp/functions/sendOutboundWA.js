@@ -82,33 +82,38 @@ const unparkInteraction = async (client, conversation, routingProperties) => {
   const { interactionSid, channelSid, taskAttributes, taskChannelUniqueName, webhookSid } = attributes
 
   // Remove webhook so it doesn't keep triggering if parked more than once
-  await client.conversations
-    .conversations(conversation.conversationSid)
-    .webhooks(webhookSid)
-    .remove()
+  if (webhookSid && interactionSid) {
+    await client.conversations
+      .conversations(conversation.conversationSid)
+      .webhooks(webhookSid)
+      .remove()
 
-  // Create a new task through the invites endpoint
-  console.log({
-    ...routingProperties,
-    task_channel_unique_name: taskChannelUniqueName,
-    attributes: taskAttributes
-  })
-  await client.flexApi.v1
-    .interaction(interactionSid)
-    .channels(channelSid)
-    .invites.create({
-      routing: {
-        properties: {
-          ...routingProperties,
-          task_channel_unique_name: taskChannelUniqueName,
-          attributes: taskAttributes
-        }
-      }
+    // Create a new task through the invites endpoint
+    console.log({
+      ...routingProperties,
+      task_channel_unique_name: taskChannelUniqueName,
+      attributes: taskAttributes
     })
-
+    await client.flexApi.v1
+      .interaction(interactionSid)
+      .channels(channelSid)
+      .invites.create({
+        routing: {
+          properties: {
+            ...routingProperties,
+            task_channel_unique_name: taskChannelUniqueName,
+            attributes: taskAttributes
+          }
+        }
+      })
+    return {
+      success: true,
+      interactionSid: interactionSid,
+      conversationSid: conversation.conversationSid
+    }
+  }
   return {
-    success: true,
-    interactionSid: interactionSid,
+    success: false,
     conversationSid: conversation.conversationSid
   }
 }
@@ -229,9 +234,27 @@ exports.handler = async function (context, event, callback) {
         queue_sid: QueueSid,
         worker_sid: WorkerSid
       });
-      await client.conversations
-        .conversations(PreviousConversation.conversationSid)
-        .messages.create({ author: WorkerFriendlyName, body: Body })
+      if (sendResponse.success) {
+        await client.conversations
+          .conversations(PreviousConversation.conversationSid)
+          .messages.create({ author: WorkerFriendlyName, body: Body })
+      } else {
+        await client.conversations
+          .conversations(PreviousConversation.conversationSid).update({ state: "closed" });
+        sendResponse = await openAChatTask(
+          client,
+          To,
+          From,
+          Body,
+          WorkerFriendlyName,
+          {
+            workspace_sid: WorkspaceSid,
+            workflow_sid: WorkflowSid,
+            queue_sid: QueueSid,
+            worker_sid: WorkerSid
+          }
+        )
+      }
 
     } else {
 
