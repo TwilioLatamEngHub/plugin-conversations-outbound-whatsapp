@@ -54,11 +54,6 @@ const openAChatTask = async (
 
 const fetchPreviousConversations = async (client, To) => {
 
-  // const resUserConversations = await axios.get(`https://conversations.twilio.com/v1/ParticipantConversations?Address=whatsapp:${To}`, {
-  //   headers: {
-  //     Authorization: `Basic ${Buffer.from(`${process.env.ACCOUNT_SID}:${process.env.AUTH_TOKEN}`, 'utf8').toString('base64')}`
-  //   }
-  // });
   console.log("Fetching user conversation address ", `whatsapp:${To}`)
   try {
     const userConversations = await client.conversations.v1.participantConversations
@@ -117,6 +112,7 @@ const unparkInteraction = async (client, conversation, routingProperties) => {
     conversationSid: conversation.conversationSid
   }
 }
+
 const sendOutboundMessage = async (
   client,
   To,
@@ -181,8 +177,7 @@ const sendOutboundMessage = async (
   return { success: true, channelSid: channel.sid }
 }
 
-// exports.handler = TokenValidator(async function (context, event, callback) {
-exports.handler = async function (context, event, callback) {
+exports.handler = TokenValidator(async function (context, event, callback) {
   const {
     To,
     From,
@@ -284,4 +279,4 @@ exports.handler = async function (context, event, callback) {
     console.error(err)
     callback(null, response)
   }
-}
+})
